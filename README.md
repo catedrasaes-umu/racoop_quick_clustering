@@ -53,50 +53,61 @@ Make sure to go for manual partitioning and "use" the 3 partitions you just crea
     exit
 
 
-### Habilitar usuario root 
+### Enable root user 
 
-sudo passwd root
+    sudo passwd root
 
-(don't log as root user after this)
+Please, don't log as root user after doing this.
 
-### Generar clave pública
-ssh-keygen -t rsa (Return x3)
+### Manage keys and clone this Git repo
 
-### Clonar el repositorio GIT y añadir clave RSA
+Generate public key:
 
-Hacer el copy id en la máquina que aloja el repo:
- 
-ssh-copy-id <usuario-git>@dsr.inf.um.es
+    ssh-keygen -t rsa
+    (Press `Return` 3 times)
 
-Clonar el repo:
+Copy your id in the machine holding the repo:
 
-sudo apt-get install git -y
-git clone git+ssh://dsevilla@dsr.inf.um.es:/home/repos/nosql/
+    ssh-copy-id <git-user>@<git-host>
 
-### Script preprovision y Ansible provision
+Clone the repo:
 
-1. Buscar script $nosql/cluster/configuration/provision/master/prepovision_master.sh en el nodo master. Ejecutarlo como sudo:
+    sudo apt-get install git -y
+    git clone https://github.com/catedrasaes-umu/quick_cluster.git
 
-./prepovision_master.sh <host_name> (e.g., cluster0 as host name)
+### Execute `preprovision` script
+
+1. Locate this script: `$nosql/cluster/configuration/provision/master/prepovision_master.sh`
+2. Execute it as sudo:
+
+
+    ./prepovision_master.sh <host_name> 
+    (e.g., use cluster0 as host name)
+
+### Execute Ansible `provision` script
   
-2. Editar $nosql/cluster/configuration/provision/ansible/vars/vars_common.yml y configurar el valor correcto de las siguientes variables:
+1. Editar $nosql/cluster/configuration/provision/ansible/vars/vars_common.yml y configurar el valor correcto de las siguientes variables:
 
-master_hostname: 'cluster0' (Master host name)
-master_user: 'master' (Master user)
-master_ip: '192.168.1.1' (Master host IP)
+
+    master_hostname: 'cluster0' (Master host name)
+    master_user: 'master' (Master user)
+    master_ip: '192.168.1.1' (Master host IP)
 
   
-3. Editar $nosql/cluster/configuration/provision/ansible/vars/vars_master.yml y configurar el valor correcto de las siguientes variables:
-
-mac_eth0: '00:80:5a:60:d1:aa' (Physical MAC address)
-mac_eth1: 'b8:ac:6f:20:13:1e' (Physical MAC address)
-modprobe_eth0: '8139too' (Modprobe)
-modprobe_eth1: 'tg3' (Modprobe)
-cluster_repository: '{{ansible_env.HOME}}/nosql/cluster' (Path to cluster configuration repository)
+2. Editar $nosql/cluster/configuration/provision/ansible/vars/vars_master.yml y configurar el valor correcto de las siguientes variables:
 
 
-4. Lanzar el playbook ansible localizado en /tmp/provision/ansible/
+    mac_eth0: '00:80:5a:60:d1:aa' (Physical MAC address)
+    mac_eth1: 'b8:ac:6f:20:13:1e' (Physical MAC address)
+    modprobe_eth0: '8139too' (Modprobe)
+    modprobe_eth1: 'tg3' (Modprobe)
+    cluster_repository: '{{ansible_env.HOME}}/nosql/cluster' (Path to cluster configuration repository)
 
-ansible-playbook playbook_master.yml -K
 
-5. Reiniciar master.
+3. Lanzar el playbook ansible localizado en /tmp/provision/ansible/
+
+
+    cd ~/nosql/cluster/provision/ansible/
+    ansible-playbook playbook_master.yml -K
+
+4. Reboot.

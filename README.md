@@ -9,8 +9,6 @@
 
 **(If you decide to install a different Ubuntu distribution, just go to next step.)**
 
-(Ubuntu 16.04 is not supported yet by Ansible. Remove this when it will.)
-
 We assume two identical hard disks (/dev/sd[ab]) which will be used completely for our new install. 
 To simplify recovery if one drive fails, there will be only one mdadm-volume /dev/md0 which will then be partitioned for /, swap and data storage, e.g. /home.
 After booting up the live-cd and (if necessary) configuring network access, open up a terminal and assume root access sudo -s
@@ -53,61 +51,94 @@ Make sure to go for manual partitioning and "use" the 3 partitions you just crea
     exit
 
 
-### Enable root user 
+### Enable root user
 
     sudo passwd root
 
 Please, don't log as root user after doing this.
 
-### Manage keys and clone this Git repo
 
-Generate public key:
-
-    ssh-keygen -t rsa
-    (Press `Return` 3 times)
-
-Copy your id in the machine holding the repo:
-
-    ssh-copy-id <git-user>@<git-host>
-
-Clone the repo:
+### Clone this Git repo
 
     sudo apt-get install git -y
     git clone https://github.com/catedrasaes-umu/quick_cluster.git
 
+
 ### Do `preprovision`
 
-1. Locate this script: `$nosql/cluster/configuration/provision/master/prepovision_master.sh`
+1. Locate this script: `$/configuration/provision/master/prepovision_master.sh`
+
 2. Execute it as sudo:
 
 
-    ./prepovision_master.sh <host_name> 
+    sudo ./prepovision_master.sh <host_name> 
     (e.g., use cluster0 as host name)
 
+
+3. Generate public key:
+
+    ssh-keygen -t rsa
+    (Press `Return` 3 times)
+
+
+4. Configure vars files. Before the Ansible provision can start some variables must be defined. These variables may be found on the `provision/ansible/vars` folder and they are:
+
+  - In vars_common.yml:
+
+    user: The user name to be used in the cluster. It will be the same for the master and the slave nodes.
+    master_hostname: The hostname for the master node. It is suggested to be named as "cluster0", so the slave nodes may be named as "cluster1..X".
+    master_ip: The ip used by the master to connect to the slaves.
+
+  - In vars_master.yml:
+
+    mac_eth0: The physical MAC address of the interface to be renamed to eth0.
+    mac_eth1: The physical MAC address of the interface to be renamed to eth1.
+    modprobe_eth0: The module name of the interface to be renamed to eth0. Obtainable with the command dmesg | grep 'interfaceName'.
+    modprobe_eth1: The module name of the interface to be renamed to eth1. Obtainable with the command dmesg | grep 'interfaceName'.
+    cluster_repository: The path to the cluster git repository.
+    nagios_admin_user: The admin user to be used in the Nagios installation.
+    nagios_admin_pass: The admin user password to be used in the Nagios installation.
+    nagios_admin_email: An admin email to be notified when an alert comes up in Nagios.
+    
+
 ### Do Ansible `provision`
-  
-1. Edit `$cluster/configuration/provision/ansible/vars/vars_common.yml` and configure these variables according to your master node:
+
+1. Launch the ansible playbook located at `/tmp/provision/ansible/`:
 
 
-    master_hostname: 'cluster0' (Master host name)
-    master_user: 'master' (Master user)
-    master_ip: '192.168.1.1' (Master host IP)
-
-  
-2. Edit `$cluster/configuration/provision/ansible/vars/vars_master.yml` and configure these variables according to your master node:
-
-
-    mac_eth0: '00:80:5a:60:d1:aa' (Physical MAC address)
-    mac_eth1: 'b8:ac:6f:20:13:1e' (Physical MAC address)
-    modprobe_eth0: '8139too' (Modprobe)
-    modprobe_eth1: 'tg3' (Modprobe)
-    cluster_repository: '{{ansible_env.HOME}}/nosql/cluster' (Path to cluster configuration repository)
-
-
-3. Launch the ansible playbook located at `/tmp/provision/ansible/`:
-
-
-    cd ~/nosql/cluster/provision/ansible/
+    cd ~/provision/ansible/
     ansible-playbook playbook_master.yml -K
 
-4. Reboot.
+2. When finished, reboot.
+
+
+## Slave node configuration
+
+### Install Ubuntu (including graphical mode) over RAID 1
+
+**(If you decide to install a different Ubuntu distribution, just go to next step.)**
+
+Same as in the Master case, we assume two identical hard disks (/dev/sd[ab]) which will be used completely for our new install. For the partitioning and RAID1 details please refer to the beginning of the previous section.
+
+### Do `preprovision`
+
+1. Copy or download the `$/configuration/provision/slave/prepovision_slave.sh` script.
+
+2. Execute it as sudo:
+
+
+    sudo ./prepovision_slave.sh <host_name> 
+    (e.g., use cluster1..X as hostname)
+
+3. Once it finishes, there should be a `/tmp/provision/` folder. Check the vars folder just to make sure everything is ok in `provision/ansible/vars`
+
+4. Execute the slave playbook inside the `/tmp/provision` folder.
+
+    cd /tmp/provision/ansible/
+    ansible-playbook playbook_slave.yml -K
+
+5. When finished, check if there is script in `/etc/init.d/get_init_slave.sh`.
+
+6. Reboot the slave machine.
+
+## Signup script.

@@ -1,0 +1,5 @@
+#
+# DFS Configuration
+#
+
+dfs_replication: '1'

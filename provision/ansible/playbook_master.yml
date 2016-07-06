@@ -1,0 +1,17 @@
+---
+
+- hosts: localhost
+  remote_user: cluster
+
+  pre_tasks:
+    - include_vars: vars/vars_common.yml
+    - include_vars: vars/vars_master.yml
+
+  roles:
+    - common
+    - master
+    - nagios_master
+    - hadoop_master
+    - hbase_master
+
+# vim: ft=ansible

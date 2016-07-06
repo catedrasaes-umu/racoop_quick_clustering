@@ -1,0 +1,49 @@
+---
+
+#
+# execute local provision
+#
+- hosts: localhost
+  remote_user: cluster
+
+  pre_tasks:
+    - include_vars: vars/vars_common.yml
+    - include_vars: vars/vars_slave.yml
+
+  roles:
+    - common
+    - slave
+    - nagios_slave
+    - hadoop_slave
+    - hbase_slave
+
+  post_tasks:
+    - meta: refresh_inventory
+#    - add_host: name={{ansible_default_ipv4.address}} groups=localhost #refresh deletes localhost
+
+#
+# execute signup in master - slave credentials are providen
+#
+
+#- hosts: master
+#  remote_user: master
+
+#  pre_tasks:
+#    - include_vars: vars/vars_common.yml
+#    - include_vars: vars/vars_master.yml
+
+#  vars:
+#    slave_name: '{{ hostvars["localhost"]["ansible_nodename"] }}'
+#    user: "slave"
+#    slave_ip: '{{ hostvars["localhost"]["ansible_default_ipv4"]["address"] }}'
+#    slave_mac: '{{ hostvars["localhost"]["ansible_default_ipv4"]["macaddress"] }}'
+
+#  roles:
+#    - signup_slave_in_master
+#    - signup_master
+
+#
+# refresh local ansible inventory to incorporate new slaves credentials
+#
+
+# vim: ft=ansible

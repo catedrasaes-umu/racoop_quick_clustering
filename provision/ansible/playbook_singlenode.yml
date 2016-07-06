@@ -1,0 +1,15 @@
+---
+
+- hosts: localhost
+
+  pre_tasks:
+    - include_vars: vars/vars_common.yml
+    - include_vars: vars/vars_singlenode.yml
+
+  roles:
+    - common
+    - singlenode
+    - hadoop_master
+    - hbase_master
+
+# vim: ft=ansible

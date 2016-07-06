@@ -1,0 +1,14 @@
+---
+
+- hosts: localhost
+  remote_user: cluster
+
+  pre_tasks:
+    - include_vars: vars/vars_common.yml
+    - include_vars: vars/vars_master.yml
+
+  roles:
+    - signup_master
+    - restart_services
+
+# vim: ft=ansible

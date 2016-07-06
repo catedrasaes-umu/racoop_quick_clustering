@@ -1,0 +1,71 @@
+---
+
+- name: ensure recent package list
+  apt: update_cache=yes
+  become: yes
+
+- name: install essential Packages
+  apt: pkg='{{ item }}' state=present
+  with_items:
+    - vim
+    - debconf-utils
+    - libzmq3-dev
+    - ntp
+    - ssh
+    - openssh-server 
+  become: yes
+
+- name: install essential Python packages
+  apt: pkg='{{ item }}' state=present
+  with_items:
+    - python-pip
+    - python-virtualenv
+    - python-software-properties
+    - python-dev
+  become: yes
+
+- name: install Python client libraries for Thrift, HBase and Jupyter
+  pip: name='{{ item }}' state=present
+  with_items:
+    - thrift
+    - happybase
+    - jupyter
+  become: yes
+
+- name: install Java 8 (OpenJDK)
+  apt: name='{{ item }}' state=present
+  with_items:
+    - openjdk-8-jdk
+    - jython
+  become: yes
+
+- name: Set JAVA_HOME environment
+  lineinfile: dest=/etc/profile.d/java-env.sh
+              line='export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre'
+              state=present
+              create=yes
+  become: yes
+
+#
+# add master host to inventory for next step
+#
+
+- name: add local and master lines into ansible hosts file
+  blockinfile:
+    dest: /etc/ansible/hosts
+    marker: "# {mark} master credentials"
+
+    block: |
+
+      [master]
+      {{master_ip}}
+
+  become: yes
+
+#
+# Allow ssh root connections
+#
+
+- name: Set SSH root login parameter
+  replace: dest=/etc/ssh/sshd_config regexp="PermitRootLogin prohibit-password" replace="PermitRootLogin yes"
+  become: yes

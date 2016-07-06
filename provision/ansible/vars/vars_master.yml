@@ -1,0 +1,49 @@
+---
+
+#
+# general master configuration
+#
+mac_eth0: ''
+mac_eth1: ''
+modprobe_eth0: ''
+modprobe_eth1: ''
+cluster_repository: ''
+webfsd_folder: '{{ cluster_repository }}'
+
+#
+# DFS Configuration
+#
+
+dfs_replication: '2'
+
+#
+# Nagios master configuration
+#
+nagios_version: '4.1.1'
+nagios_url: 'https://assets.nagios.com/downloads/nagioscore/releases/nagios-{{ nagios_version }}.tar.gz'
+nagios_folder: '{{ ansible_env.HOME }}'
+nagios_admin_user: ''
+nagios_admin_pass: ''
+nagios_plugins_folder: '{{ ansible_env.HOME }}'
+nagios_nrpe_folder: '{{ ansible_env.HOME }}'
+nagios_admin_email: ''
+nagios_plugin_version: '2.1.1'
+nagios_plugin_url : 'http://nagios-plugins.org/download/nagios-plugins-{{ nagios_plugin_version }}.tar.gz'
+
+#
+# NRPE master configuration
+#
+
+nrpe_major_version: '2'
+nrpe_minor_version: '15'
+nrpe_version: '{{ nrpe_major_version }}.{{ nrpe_minor_version }}'
+nrpe_url: 'http://downloads.sourceforge.net/project/nagios/nrpe-{{ nrpe_major_version }}.x/nrpe-{{ nrpe_version }}/nrpe-{{ nrpe_version }}.tar.gz'
+
+#
+# Web monitoring
+#
+nagios_web: 'localhost/nagios/'
+hadoop_cluster_web: 'localhost:50070'
+hadoop_works_web: 'localhost:8088/cluster'
+hbase_web: 'localhost:60010/master-status'
+

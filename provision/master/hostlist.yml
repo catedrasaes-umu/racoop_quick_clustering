@@ -1,0 +1,17 @@
+---
+# the list of hosts
+clusterhosts:
+#
+  {{ master_hostname }}:
+    name: {{ master_hostname }}
+    user: {{ user }}
+    ip: {{ master_ip }}
+    mac: {{ mac_eth1 }}
+    role: master
+
+#  {{ slave_hostname }}:
+#    name: {{ slave_hostname }}
+#    user: {{ user }}
+#    ip: {{ slave_ip }}
+#    mac: {{ slave_mac }}
+#    role: slave

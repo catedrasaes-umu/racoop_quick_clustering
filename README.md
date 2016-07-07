@@ -1,8 +1,11 @@
-# quick_cluster
+# RACoop - Rapid Ansible Clustering with Hadoop
+## Set up an incredible Hadoop cluster in 10 minutes powered by Ansible
+
+***
 
 # Summary
 
-- This guide is intended to install a physical cluster running Nagios, Hadoop and HBase, automatized with Ansible.
+- This guide is intended to easy install a physical cluster running Nagios, Hadoop and HBase, all automated with Ansible.
 - The scenario will contain a cluster master with a public Ethernet interface and a private Ethernet interface.
 - The scenario will also contain a variable number of cluster slaves with a private Ethernet interface connected to the master.
 - The provision part is installed just the first time a machine is added to the cluster.

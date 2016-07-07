@@ -1,0 +1,8 @@
+---
+user: cluster
+hadoop_release: 2.6.3
+hadoop_base_dir: '{{ ansible_env.HOME}}'
+hadoop_home_dir: '{{ hadoop_base_dir}}/hadoop-{{ hadoop_release}}'
+hbase_release: 1.1.5
+hbase_base_dir: '{{ ansible_env.HOME}}'
+hbase_home_dir: '{{ hbase_base_dir }}/hbase-{{ hbase_release }}'

@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  remote_user: cluster
+
+  pre_tasks:
+    - include_vars: vars/vars_common.yml
+
+  roles:
+    - atboot_common
+    - atboot_slave
+# vim: ft=ansible

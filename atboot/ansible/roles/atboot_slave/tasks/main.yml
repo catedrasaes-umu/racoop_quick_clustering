@@ -1,0 +1,20 @@
+---
+
+### Nagios
+
+- name: Reload Nagios service
+  service: name=nagios-nrpe-server state=restarted
+  become: yes
+
+
+### Hadoop
+
+#- name: Start the datanode
+#  shell: ./hadoop-daemon.sh start datanode chdir='{{ hadoop_home_dir }}/sbin'
+#  become: yes
+#  become_user: "{{ hadoop_user }}"
+
+#- name: Start the nodemanager
+#  shell: ./start-yarn.sh chdir='{{ hadoop_home_dir }}/sbin'
+#  become: yes
+#  become_user: "{{ hadoop_user }}"

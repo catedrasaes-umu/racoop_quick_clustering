@@ -1,0 +1,42 @@
+---
+
+#
+# Nagios
+#
+
+- name: Reload Nagios service
+  service: name=nagios state=restarted
+  become: yes
+
+#
+# Webfs
+#
+
+- name: Reload Webfs service
+  service: name=webfs state=restarted
+  become: yes
+
+#
+# Hadoop
+#
+
+- name: Start Hadoop DFS daemons
+  command: sbin/start-dfs.sh
+           chdir={{ hadoop_home_dir }}
+
+- name: Start Hadoop Yarn
+  command: sbin/start-yarn.sh
+           chdir={{ hadoop_home_dir }}
+
+#
+# Hbase
+#
+
+- name: Start HBase
+  command: ./bin/start-hbase.sh
+           chdir={{ hbase_home_dir }}
+
+- name: Start Thrift server
+  command: ./bin/hbase-daemon.sh start thrift
+           chdir={{ hbase_home_dir }}
+

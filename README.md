@@ -3,16 +3,23 @@
 
 ***
 
-# Summary
+# Abstract
 
 - This guide is intended to easy install a physical (or virtual) cluster running Nagios, Hadoop and HBase, all automated by Ansible.
-- The scenario will contain a cluster master with a public Ethernet interface and a private Ethernet interface.
-- The scenario will also contain a variable number of cluster slaves with a private Ethernet interface connected to the master.
-- The provision part is installed just the first time a machine is added to the cluster.
-- The atboot part is executed each time a machine is rebooted.
-
+- The scenario (depicted in the figure below) will be composed of:
+   - 1 master node with 1 public interface and 1 private interface.
+   - 1 or more slave nodes, each one with a private Ethernet interface connected to the master.
+   
+   
 <img src="cluster_diag.png" 
 alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
+
+   
+- Configuration of different nodes is divided into two Ansible stages:
+   - **provision**, that is executed just the first time a node is configured.
+   - **atboot**, that is executed each time a node is rebooted.
+
+
 
 
 # Installation guide

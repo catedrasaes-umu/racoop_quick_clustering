@@ -1,0 +1,155 @@
+---
+
+# ===========================
+# Install Apache and prepare the Nagios web
+# ===========================
+
+- name: Install Apache
+  apt: name={{item}} state=present
+  with_items:
+    - apache2
+    - libapache2-mod-php
+    - php
+    - apache2-utils
+    - build-essential
+    - libgd2-xpm-dev
+    - openssl
+    - libssl-dev
+    - xinetd
+    - unzip
+  become: yes
+
+- name: Apache command (1)
+  apache2_module: state=present name=rewrite
+  become: yes
+
+- name: Apache command (2)
+  apache2_module: state=present name=cgi
+  become: yes
+
+- name: Add www-data to user group
+  user: name=www-data groups={{user}} append=yes createhome=no
+  become: yes
+
+# =========================
+# Install Nagios
+# =========================
+
+- name: Unzip Nagios
+  unarchive: src={{ nagios_url }} dest={{ nagios_folder }} owner={{ user }} group={{ user }} copy=no creates={{ nagios_folder }}/nagios-{{ nagios_version }}
+
+- name: Compile Configure Nagios and make all
+  command: "./configure --with-nagios-user={{ user }} --with-nagios-group={{ user }} --with-command-group={{user}}"
+  args:
+#    creates: "{{ nagios_folder }}/nagios-{{ nagios_version }}/configure"
+    chdir: "{{ nagios_folder }}/nagios-{{ nagios_version }}"
+
+- name: Compile Nagios
+#  expect:
+  command: "make all"
+  args:
+    chdir: "{{ nagios_folder }}/nagios-{{ nagios_version }}"
+#    responses:
+#      replace LICENSE?: "A"
+
+- name: Install Nagios
+  shell: "cd {{ nagios_folder }}/nagios-{{ nagios_version }}/ && make install && make install-commandmode && make install-init && make install-config"
+  become: yes
+
+- name: Move nagios configuration file to Apache
+  template: src=nagios.conf dest=/etc/apache2/sites-available/ mode=644
+  become: yes
+
+- name: Nagios command
+  shell: "a2ensite nagios"
+  become: yes
+
+- name: Update-rc
+  shell: "update-rc.d nagios defaults"
+  become: yes
+
+- name: Add Nagios admin to Nagios users file
+  shell: "htpasswd -bc /usr/local/nagios/etc/htpasswd.users {{ nagios_admin_user }} {{ nagios_admin_pass }}"
+  become: yes
+
+- name: Move cgi configuration file
+  template: src=cgi.cfg dest=/usr/local/nagios/etc/ owner={{ user }} group={{ user }}
+  become: yes
+
+- name: Restart Apache2 service
+  service: name=apache2 state=restarted
+  become: yes
+
+# =========================
+# Install Nagios plugins
+# =========================
+
+- name: Unzip Nagios plugins
+  unarchive: src={{ nagios_plugin_url }} dest={{ nagios_plugins_folder }} owner={{ user }} group={{ user }} copy=no creates={{ nagios_plugins_folder }}/nagios-plugins-{{ nagios_plugin_version }}
+
+- name: Compile Configurate Nagios plugins
+  command: "./configure --with-nagios-user={{ user }} --with-nagios-group={{ user }} --with-openssl"
+  args:
+#    creates: "{{ nagios_plugins_folder }}/nagios-plugins-{{ nagios_plugin_version }}/configure"
+    chdir: "{{ nagios_plugins_folder }}/nagios-plugins-{{ nagios_plugin_version }}/"
+
+- name: Compile and install Nagios plugins
+  shell: make && make install chdir={{ nagios_plugins_folder }}/nagios-plugins-{{ nagios_plugin_version }}/
+  become: yes
+
+# =========================
+# Install NRPE to run checks on remote servers
+# =========================
+
+- name: Unzip NRPE
+  unarchive: src={{ nrpe_url }} dest={{ nagios_nrpe_folder }} owner={{ user }} group={{ user }} copy=no creates={{ nagios_nrpe_folder }}/nrpe-{{ nrpe_version }}
+
+- name: Compile NRPE
+  shell: "cd {{ nagios_nrpe_folder }}/nrpe-{{ nrpe_version }}/ && ./configure --enable-command-args --with-nagios-user={{ user }} --with-nagios-group={{ user }} --with-nrpe-user={{ user }} --with-nrpe-group={{ user }} --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu && make all"
+
+- name: Install NRPE
+  shell: "cd {{ nagios_nrpe_folder }}/nrpe-{{ nrpe_version }}/ && make install && make install-xinetd && make install-daemon-config"
+  become: yes
+
+- name: Let NRPE listen to its public IP
+  replace: dest=/etc/xinetd.d/nrpe regexp="only_from       = 127.0.0.1\n" replace="only_from       = 127.0.0.1 {{ ansible_default_ipv4.address }}\n"
+  become: yes
+
+- name: Restart Xinetd service
+  service: name=xinetd state=restarted
+  become: yes
+
+# =========================
+# Configure Nagios
+# =========================
+
+- name: Copy Nagios config file
+  template: src=nagios.cfg dest=/usr/local/nagios/etc/ owner={{ user }} group={{ user }}
+  become: yes
+
+- name: Create servers folder
+  file: path=/usr/local/nagios/etc/servers state=directory mode=0755
+  become: yes
+
+- name: Copy configuration files(1)
+  template: src=hostgroups.cfg dest=/usr/local/nagios/etc/servers owner=root group=root
+  become: yes
+
+- name: Copy configuration files(2)
+  template: src=services.cfg dest=/usr/local/nagios/etc/servers owner=root group=root
+  become: yes
+
+- name: Replace admin contact email for the Catedra email
+  replace: dest=/usr/local/nagios/etc/objects/contacts.cfg regexp="nagios@localhost" replace={{ nagios_admin_email }}
+  become: yes
+
+- name: Copy Commands config file
+  template: src=commands.cfg dest=/usr/local/nagios/etc/objects/ owner={{ user }} group={{ user }}
+  become: yes
+
+- name: Copy monitored resources config file
+  template: src=nrpe.cfg dest=/usr/local/nagios/etc/ owner=root group=root
+  become: yes
+
+- name: Reload Nagios with the new config files
+  shell: "/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg"

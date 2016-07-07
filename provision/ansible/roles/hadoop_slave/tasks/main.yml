@@ -1,0 +1,51 @@
+---
+- name: Download and extract Hadoop
+  unarchive: src={{ hadoop_url }}
+             dest={{ hadoop_base_dir }}
+             owner={{ user }}
+             group={{ user }}
+             copy=no
+  become: yes
+
+- name: Symlink Hadoop home directory to just hadoop/
+  file: path={{ hadoop_base_dir }}/hadoop src='{{ hadoop_home_dir }}' state=link owner={{ user }} group={{ user }}
+  become: yes
+
+- name: Add HADOOP_PREFIX to environment variables
+  lineinfile: dest=/etc/environment
+              regexp=^HADOOP_PREFIX=
+              line=HADOOP_PREFIX={{ hadoop_home_dir }}
+  become: yes
+
+- name: Write hadoop-env file
+  template: src=hadoop-env.sh
+            dest='/etc/profile.d/'
+  become: yes
+
+- name: Set JAVA_HOME environment variable for Hadoop
+  lineinfile: dest='{{ hadoop_home_dir }}/etc/hadoop/hadoop-env.sh'
+              regexp='^#?\s*export JAVA_HOME='
+              line='export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre'
+              state=present
+
+- name: Write Hadoop core config file
+  template: src=hadoop-core-site.xml.j2
+            dest='{{ hadoop_home_dir }}/etc/hadoop/core-site.xml'
+
+- name: Write Hadoop HDFS config file
+  template: src=hadoop-hdfs-site.xml.j2
+            dest='{{ hadoop_home_dir }}/etc/hadoop/hdfs-site.xml'
+
+- name: Write Hadoop yarn-site config file
+  template: src=yarn-site.xml.j2
+            dest='{{ hadoop_home_dir }}/etc/hadoop/yarn-site.xml'
+
+- name: Write Hadoop mapred-site config file
+  template: src=mapred-site.xml.j2
+            dest='{{ hadoop_home_dir }}/etc/hadoop/mapred-site.xml' owner={{ user }} group={{ user }}
+
+- name: Format the Hadoop filesystem
+  shell: '{{ hadoop_home_dir }}/bin/hdfs namenode -format'
+  become: yes
+  become_user: "{{ user }}"
+

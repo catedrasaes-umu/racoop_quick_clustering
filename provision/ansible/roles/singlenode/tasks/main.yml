@@ -1,0 +1,44 @@
+---
+
+#
+# Data directory
+#
+
+- name: delete base data directory (if exists)
+  file: path=/data state=absent
+  become: yes
+
+- name: create base data directory
+  file: path=/data state=directory owner={{user}} group={{user}} mode=0755
+  become: yes
+
+#
+# SSH Configuration
+#
+
+- name: create SSH key pair for Hadoop
+  command: ssh-keygen -t rsa -N "" -C "for Hadoop" -f '{{ ssh_key }}' creates='{{ ssh_key }}.pub'
+  
+- name: Create SSH folder
+  file: path={{ ansible_env.HOME}}/.ssh state=directory owner={{ user }} group={{ user}} mode=0700
+
+- name: create SSH config
+  template: src=ssh-config.j2 dest={{ ansible_env.HOME }}/.ssh/config mode=600
+
+- name: Copy my own ssh id
+  authorized_key:
+    user: "{{user}}"
+    key: "{{ lookup('file', '{{ ansible_env.HOME}}/.ssh/id_rsa.pub') }}"
+
+#
+# Increase limit number for open files
+#
+
+- name: Increase limit number for open files
+  blockinfile: 
+    dest: /etc/security/limits.conf
+    block: |2
+      {{user}}    soft    nofile    40000
+      {{user}}    hard    nofile    40000
+    marker: "# {mark} file limit configuration"
+  become: yes

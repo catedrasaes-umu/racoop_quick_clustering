@@ -1,0 +1,12 @@
+Host localhost
+  StrictHostKeyChecking no
+
+Host 0.0.0.0
+  StrictHostKeyChecking no
+
+Host {{ ansible_default_ipv4.address }}
+  User {{ user }}
+
+Host {{ ansible_nodename }}
+  User {{ user }}
+

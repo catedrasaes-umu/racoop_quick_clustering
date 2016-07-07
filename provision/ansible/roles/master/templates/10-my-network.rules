@@ -1,0 +1,6 @@
+# external - internet conneted
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="{{ mac_eth1 }}", NAME="eth1"
+
+# internal network
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="{{ mac_eth0 }}", NAME="eth0"
+

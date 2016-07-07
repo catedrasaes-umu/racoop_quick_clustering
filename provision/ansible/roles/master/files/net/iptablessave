@@ -1,0 +1,6 @@
+#!/bin/sh
+#iptables-save -c > /etc/myiptables.rules
+if [ -f /etc/myiptables.downrules ]; then
+   iptables-restore < /etc/myiptables.downrules
+fi
+exit 0

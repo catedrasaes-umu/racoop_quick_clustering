@@ -1,0 +1,141 @@
+---
+
+#
+# Data directory
+#
+
+- name: delete base data directory (if exists)
+  file: path=/data state=absent
+  become: yes
+
+- name: create base data directory
+  file: path=/data state=directory owner={{user}} group={{user}} mode=0755
+  become: yes
+
+#
+# Interface configuration
+#
+
+- name: Copy interface names file
+  template: src=10-my-network.rules dest=/etc/udev/rules.d/ mode=644 owner=root group=root
+  become: yes
+
+- name: Create a /etc/hosts entry
+  blockinfile:
+    dest: /etc/hosts
+    block: |
+      192.168.1.1 {{ ansible_nodename }}
+  become: yes
+
+- name: Reload interfaces
+  shell: "/etc/init.d/networking stop && modprobe -r {{ modprobe_eth0 }} && modprobe -r {{ modprobe_eth1 }} && udevadm control --reload-rules && udevadm trigger && modprobe {{ modprobe_eth0 }} && modprobe {{ modprobe_eth1 }}"
+  become: yes
+
+- name: Configure static private IP
+  blockinfile:
+    dest: /etc/network/interfaces
+    block: |
+      auto eth0
+      iface eth0 inet dhcp
+
+      auto eth1
+      iface eth1 inet static
+          address 192.168.1.1
+          netmask 255.255.255.0
+          dns-nameservers 8.8.8.8 8.8.4.4
+  become: yes
+
+- name: Reload networking
+  service: name=networking state=restarted
+  become: yes
+
+#
+# SSH stuff
+#
+
+- name: create SSH config
+  template: src=ssh-config.j2 dest={{ ansible_env.HOME }}/.ssh/config mode=600
+
+- name: Copy my own ssh id
+  authorized_key:
+    user: "{{user}}"
+    key: "{{ lookup('file', '{{ ansible_env.HOME}}/.ssh/id_rsa.pub') }}"
+
+#
+# Forwarding
+#
+
+- name: IPv4 forwarding
+  sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes reload=no
+  become: yes
+
+- name: Postrouting filtering rules
+  shell: "if ! test -e /etc/myiptables.rules ; then iptables -t nat -A POSTROUTING --out-interface eth0 -j MASQUERADE && iptables -A FORWARD --in-interface eth1 -j ACCEPT ; fi"
+  become: yes
+
+- name: Create filtering rules file
+  shell: "iptables-save > /etc/myiptables.rules"
+  become: yes
+
+- name: Copy script in if-pre-up
+  copy: src=net/iptablesload dest=/etc/network/if-pre-up.d/ mode=755 owner=root group=root
+  become: yes
+
+- name: Copy script in if-post-down
+  copy: src=net/iptablessave dest=/etc/network/if-post-down.d/ mode=755 owner=root group=root
+  become: yes
+
+#
+# DHCP configuration
+#
+
+- name: Install DHCP server
+  apt: name=isc-dhcp-server state=present
+  become: yes
+
+- name: Copy dhcp server file if it does not exist
+  copy: src=dhcp/isc-dhcp-server dest=/etc/default/ mode=644 owner=root group=root
+  become: yes
+
+- name: Copy dhcp configuration file
+  copy: src=dhcp/dhcpd.conf dest=/etc/dhcp/dhcpd.conf mode=644 owner=root group=root
+  become: yes
+
+- name: Replace a line in the dhcp service file
+  replace: dest=/etc/init/isc-dhcp-server.conf regexp="start on runlevel \[2345\]\n" replace="start on runlevel [2345] and net-device-up IFACE=eth1\n"
+  become: yes
+
+- name: Restart DHCP service
+  service: name=isc-dhcp-server state=restarted
+  become: yes
+
+#
+# Webfs configuration
+#
+
+# Ansible fetch does not support recursive fetching, so we can't fetch the atboot folders. http://docs.ansible.com/ansible/fetch_module.html
+
+- name: Install Webfs
+  apt: name=webfs state=present
+  become: yes
+
+- name: Copy webfsd configuration file
+  template: src=webfsd.conf dest=/etc/ owner=root group=root
+  become: yes
+
+- name: Restart Webfs service
+  service: name=webfs state=restarted
+  become: yes
+
+#
+# Increase limit number for open files
+#
+
+- name: Increase limit number for open files
+  blockinfile: 
+    dest: /etc/security/limits.conf
+    block: |2
+      {{user}}    soft    nofile    40000
+      {{user}}    hard    nofile    40000
+    marker: "# {mark} file limit configuration"
+  become: yes

@@ -1,0 +1,30 @@
+---
+
+# ===========================
+# Install NRPE and plugins
+# ===========================
+
+- name: Install NRPE and nagios plugins
+  apt: name={{item}} state=present
+  with_items:
+    - nagios-plugins
+    - nagios-nrpe-server
+  become: yes
+
+# ===========================
+# Copy the configuration file and restart service
+# ===========================
+
+- name: Deploy nagios host configuration file in tmp
+  template: src=hostname.cfg dest=/tmp/{{ansible_nodename}}.cfg
+
+- name: Push nagios host configuration file to master
+  shell: "scp /tmp/{{ansible_nodename}}.cfg root@192.168.1.1:/usr/local/nagios/etc/servers/"
+
+- name: Copy configuration file
+  copy: src=nrpe.cfg dest=/etc/nagios/ owner=root group=root
+  become: yes
+
+- name: Restart nagios-nrpe-server service
+  service: name=nagios-nrpe-server state=restarted
+  become: yes

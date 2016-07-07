@@ -1,0 +1,53 @@
+---
+- name: Download and extract Hbase
+  unarchive: src='{{ hbase_url }}'
+           dest={{ hbase_base_dir }}
+           owner={{ user }}
+           group={{ user }}
+           copy=no
+  become: yes
+
+- name: Create HBase-related directories
+  file: path='{{ item }}' state=directory owner={{ user }} group={{ user }}
+  with_items:
+    - '{{ hbase_data_dir }}'
+    - '{{ zookeeper_data_dir }}'
+    - '{{ hbase_home_dir }}/logs'
+  become: yes
+
+- name: Symlink HBase home directory to just hbase/
+  file: path={{ hbase_base_dir }}/hbase src='{{ hbase_home_dir }}' state=link
+  become: yes
+
+- name: Write HBase config file
+  template: src=hbase-site.xml.j2
+            dest='{{ hbase_home_dir }}/conf/hbase-site.xml'
+
+- name: Add HBASE_PREFIX to environment variables
+  lineinfile: dest=/etc/environment
+              regexp=^HBASE_PREFIX=
+              line=HBASE_PREFIX={{ hbase_home_dir }}
+  become: yes
+
+- name: Write hbase-env file
+  template: src=hbase-env.sh
+            dest='/etc/profile.d/'
+  become: yes
+
+- name: Set JAVA_HOME environment variable for HBase
+  lineinfile: dest='{{ hbase_home_dir }}/conf/hbase-env.sh'
+              regexp='^#?\s*export JAVA_HOME='
+              line='export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre'
+              state=present
+
+- name: Explicitly tell HBase to manage Zookeeper
+  lineinfile: dest='{{ hbase_home_dir }}/conf/hbase-env.sh'
+              regexp='^#?\s*export HBASE_MANAGES_ZK='
+              line='export HBASE_MANAGES_ZK=true'
+              state=present
+
+- name: Write Hbase regionservers file (replace localhost entry)
+  replace: dest='{{ hbase_home_dir }}/conf/regionservers' 
+           regexp='localhost'
+           replace='{{ master_hostname }}'
+

@@ -1,0 +1,87 @@
+---
+
+#
+# create data directory
+#
+
+- name: delete base data directory (if exists)
+  file: path=/data state=absent
+  become: yes
+
+- name: create base data directory
+  file: path=/data state=directory owner={{user}} group={{user}} mode=0755
+  become: yes
+
+#
+# create .ssh folder
+#
+
+- name: create .ssh folder
+  file: path={{ ansible_env.HOME }}/.ssh state=directory owner={{user}} group={{user}} mode=0700
+
+#
+# ssh copy id
+#
+
+- name: create SSH config
+  template: src=ssh-config.j2 dest={{ ansible_env.HOME }}/.ssh/config
+
+- name: create SSH key pair for Hadoop
+  command: ssh-keygen -t rsa -N "" -C "for Hadoop" -f '{{ ssh_key }}'
+           creates='{{ ssh_key }}.pub'
+
+- name: add generated key to authorized_keys
+  shell: 'if grep -q Hadoop {{ ansible_env.HOME }}/.ssh/authorized_keys; then echo "public key already added"; else cat {{ ssh_key }}.pub >> {{ ansible_env.HOME }}/.ssh/authorized_keys; fi'
+  register: ssh_result
+  changed_when: ssh_result.stdout.find('public key already added') == -1
+
+- name: copy ssh id
+  shell: 'ssh-copy-id {{user}}@{{ master_ip }}'
+
+#
+# move "get_init_slave" script and create link
+#
+
+- name: get slave boot script from server
+  copy: src=get_init_slave.sh dest={{ boot_slave_script_dest }} mode=775 owner={{ user }} group={{ user }}
+  become: yes
+
+- name: create link for executing the script at boot
+  command: ln -s '{{ boot_slave_script_dest }}' '{{ boot_slave_script_link }}'
+           creates='{{ boot_slave_script_link }}'
+  become: yes
+
+#
+# ssh-copy-id from slave to master
+#
+
+- name: Copy SSH keys from master to this slave
+  shell: 'scp {{ user }}@{{ master_ip }}:/home/{{ user }}/.ssh/id_rsa.pub /tmp && if ! grep -q "`cat /tmp/id_rsa.pub`" /home/{{ user }}/.ssh/authorized_keys ; then cat /tmp/id_rsa.pub >> /home/{{ user }}/.ssh/authorized_keys ; fi && rm /tmp/id_rsa.pub'
+
+- name: Copy SSH keys from master to this slave (root user)
+  shell: 'scp {{ user }}@{{ master_ip }}:/home/{{ user }}/.ssh/id_rsa.pub /tmp && if ! sudo grep -q "`cat /tmp/id_rsa.pub`" /root/.ssh/authorized_keys ; then sudo cat /tmp/id_rsa.pub >> /root/.ssh/authorized_keys ; fi && rm /tmp/id_rsa.pub'
+  become: yes
+
+- name: add local line into ansible hosts file
+  blockinfile:
+    dest: /etc/ansible/hosts
+    marker: "# {mark} local credentials"
+
+    block: |
+      [local]
+      {{ansible_default_ipv4.address}}
+
+  become: yes
+
+#
+# Increase limit number for open files
+#
+
+- name: Increase limit number for open files
+  blockinfile: 
+    dest: /etc/security/limits.conf
+    block: |2
+      {{user}}    soft    nofile    40000
+      {{user}}    hard    nofile    40000
+    marker: "# {mark} file limit configuration"
+  become: yes

@@ -1,0 +1,3 @@
+#!/bin/sh
+iptables-restore < /etc/myiptables.rules
+exit 0

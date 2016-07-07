@@ -45,17 +45,12 @@ Now we create the mdadm volume:
     sudo mdadm --create /dev/md0 --bitmap=internal --level=1 -n 2 /dev/sd[ab]1
 
 
-I noticed, that the ubiquity installer also does not quite manage to create partitions inside this `/dev/md0`, so I also did this by hand - again using fdisk. So, on `/dev/md0` create the following partitions:
- - `/dev/md0p1` for your root filesystem, the size of course depending upon how much software you are going to install.
- - `/dev/md0p2` for swap, the size of course also depending on what you use the machine for and how much ram it's got
- - `/dev/md0p3` for `/home`, all the space that's left
-
 After that we can begin the Installation. Make sure to start the installer from the terminal with the -b option, because installing the bootloader will fail anyway:
 
     ubiquity -b
 
 
-Make sure to go for manual partitioning and "use" the 3 partitions you just created and tick the format checkbox for `/` and `/home` so a filesystem will be created. After the installation the system is not yet bootable, so do not restart the box right away. We need to chroot into the installed system and fixup some stuff:
+Make sure to go for manual partitioning and "use" the /dev/md0 device just created for `/`. After the installation the system is not yet bootable, so do not restart the box right away. We need to chroot into the installed system and fixup some stuff:
 
     sudo -s
     mount /dev/md0p1 /mnt
@@ -72,6 +67,7 @@ Make sure to go for manual partitioning and "use" the 3 partitions you just crea
     update-grub
     exit
 
+Reboot after formating and login in the raid device. Now the installation may start.
 
 ### Enable root user
 

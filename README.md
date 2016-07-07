@@ -142,3 +142,7 @@ Same as in the Master case, we assume two identical hard disks (/dev/sd[ab]) whi
 6. Reboot the slave machine.
 
 ## Signup script.
+
+## Warnings and troubleshooting.
+
+1. There seems to be some problems in Ansible v2.1 related to the unarchive module as can be seen here [bug issue](https://github.com/ansible/ansible-modules-core/issues/3706). If unarchive fails by some reason, please check your unarchive.py module (located usually in /usr/lib/python2.7/dist-packages/ansible/modules/core/files/unarchive.py) and make sure to replace the line `rc, out, err = self.module.run_command(cmd)` with `rc, out, err = self.module.run_command(cmd, environ_update={'LC_ALL': 'C'})`.

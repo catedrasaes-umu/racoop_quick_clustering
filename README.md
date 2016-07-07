@@ -1,5 +1,12 @@
 # quick_cluster
 
+# Summary
+
+- This guide is intended to install a physical cluster running Nagios, Hadoop and HBase, automatized with Ansible.
+- The scenario will contain a cluster master with a public Ethernet interface and a private Ethernet interface.
+- The scenario will also contain a variable number of cluster slaves with a private Ethernet interface connected to the master.
+- The provision part is installed just the first time a machine is added to the cluster.
+- The atboot part is executed each time a machine is rebooted.
 
 # Installation guide
 
@@ -142,6 +149,25 @@ Same as in the Master case, we assume two identical hard disks (/dev/sd[ab]) whi
 6. Reboot the slave machine.
 
 ## Signup script.
+
+The signup process must be executed in the cluster master when a new slave is added to the cluster. It is responsible of recreating files in master such as /etc/hosts and then push them to each slave. This process must be started once the new slave added is rebooted.
+
+### Add new slave to hostlist.yml file.
+
+1. Open the file provision/master/hostlist.yml.
+
+2. Make sure the existing entries are correct.
+
+3. Create a new entry for the added slave and tag it with the role "slave".
+
+### Do Ansible `signup` process.
+
+1. In the master machine execute the signup playbook in the `provision/ansible` folder:
+
+    ansible-playbook playbook-signup.yml
+
+2. The last part of the signup process will restart Nagios, Hadoop and HBase.
+
 
 ## Warnings and troubleshooting.
 

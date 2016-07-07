@@ -9,8 +9,8 @@ clusterhosts:
     mac: {{ mac_eth1 }}
     role: master
 
-#  {{ slave_hostname }}:
-#    name: {{ slave_hostname }}
+#  slaveN:
+#    name: slaveN
 #    user: {{ user }}
 #    ip: {{ slave_ip }}
 #    mac: {{ slave_mac }}

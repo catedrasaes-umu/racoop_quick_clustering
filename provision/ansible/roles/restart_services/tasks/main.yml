@@ -1,0 +1,69 @@
+---
+
+#
+# restart nagios
+#
+
+- name: Restart Nagios service
+  service: name=nagios state=restarted
+  become: yes
+
+#
+# stop hbase
+#
+
+- name: Stop HBase
+  command: ./bin/stop-hbase.sh
+           chdir={{ hbase_home_dir }}
+
+- name: Stop Thrift server
+  command: ./bin/hbase-daemon.sh stop thrift
+           chdir={{ hbase_home_dir }}
+
+#
+# stop hadoop
+#
+
+- name: Stop Hadoop DFS daemons
+  command: sbin/stop-dfs.sh
+           chdir={{ hadoop_home_dir }}
+
+- name: Stop Hadoop Yarn
+  command: sbin/stop-yarn.sh
+           chdir={{ hadoop_home_dir }}
+
+#
+# start hadoop
+#
+
+- name: Start Hadoop DFS daemons
+  command: sbin/start-dfs.sh
+           chdir={{ hadoop_home_dir }}
+
+- name: Start Hadoop Yarn
+  command: sbin/start-yarn.sh
+           chdir={{ hadoop_home_dir }}
+
+#
+# start hbase
+#
+
+- name: Start HBase
+  command: ./bin/start-hbase.sh
+           chdir={{ hbase_home_dir }}
+
+- name: Start Thrift server
+  command: ./bin/hbase-daemon.sh start thrift
+           chdir={{ hbase_home_dir }}
+
+
+#
+# start firefox browser including all monitoring webpages
+#
+
+- name: start firefox browser including all monitoring webpages
+  command: firefox --new-tab -url {{nagios_web}} --new-tab -url {{hadoop_cluster_web}} --new-tab -url {{hadoop_works_web}} --new-tab -url {{hbase_web}} 
+
+
+# vim: ft=ansible
+

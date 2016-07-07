@@ -1,0 +1,180 @@
+---
+#
+# load hosts information
+#
+
+- include_vars: '{{hostlist_path}}'
+
+#
+# update local /etc/hosts file -------------------------------------------------
+#
+
+- name: update local /etc/hosts file -> erase existing records
+  lineinfile: dest='/etc/hosts'
+              regexp="^.* {{item.value.name}}"
+              state=absent
+  with_dict: "{{clusterhosts}}"
+  become: yes
+
+- name: update local /etc/hosts file -> adding updated hosts
+  lineinfile: create=yes
+              dest='/etc/hosts'
+              line="{{item.value.ip}}  {{item.value.name}}"
+              state=present
+  with_dict: "{{clusterhosts}}"
+  become: yes
+
+#
+# Push /etc/hosts to all known slaves
+#
+
+- name: Push /etc/hosts to all known slaves
+  command: 'scp -o ConnectTimeout=5 /etc/hosts root@{{item.value.ip}}:/etc/'
+  when: item.value.role == "slave"
+  with_dict: "{{clusterhosts}}"
+  ignore_errors: yes
+
+#
+# update local dhcp file -------------------------------------------------------
+#
+
+- name: update local dhcp file -> erase existing records
+  lineinfile: dest='/etc/dhcp/dhcpd.conf'
+              regexp="host {{item.value.name}} *"
+              state=absent
+  with_dict: "{{clusterhosts}}"
+  become: yes
+
+- name: update local dhcp file -> set fixed IP for hosts
+  lineinfile: dest='/etc/dhcp/dhcpd.conf'
+              line="host {{item.value.name}} { hardware ethernet {{item.value.mac}}; fixed-address {{item.value.ip}}; }"
+              state=present
+  with_dict: "{{clusterhosts}}"
+  become: yes
+
+#
+# restart dhcp service
+#
+
+- name: Restart DHCP service
+  service: name=isc-dhcp-server state=restarted
+  become: yes
+
+#
+# update /etc/ansible/hosts ----------------------------------------------------
+#
+
+- name: update ansible hosts file -> erase existing records
+  lineinfile: dest='{{ansible_hosts_file}}'
+              regexp="{{item.value.ip}}"
+              state=absent
+  when: item.value.role == "slave"
+  with_dict: "{{clusterhosts}}"
+  become: yes
+
+- name: make sure a [slaves] tag exists
+  lineinfile: dest='{{ansible_hosts_file}}'
+              line="[slaves]"
+              state=present
+  become: yes
+
+- name: update ansible hosts file -> add slave name
+  lineinfile: dest='{{ansible_hosts_file}}'
+              insertafter="[slaves]"
+              line="{{item.value.ip}}"
+              state=present
+  with_dict: "{{clusterhosts}}"
+  become: yes
+
+#
+# Push /etc/ansible/hosts to all known slaves
+#
+
+- name: Push /etc/ansible/hosts to all known slaves
+  command: 'scp -o ConnectTimeout=5 /etc/ansible/hosts root@{{item.value.ip}}:/etc/ansible/'
+  when: item.value.role == "slave"
+  with_dict: "{{clusterhosts}}"
+  ignore_errors: yes
+
+#
+# update hadoop slaves file ----------------------------------------------------
+#
+
+- name: update local slaves file -> remove localhost reference
+  lineinfile: dest='{{hadoop_home_dir}}/etc/hadoop/slaves'
+              line="localhost"
+              state=absent
+
+- name: update local slaves file -> add slaves credentials
+  lineinfile: dest='{{hadoop_home_dir}}/etc/hadoop/slaves'
+              line="{{item.value.name}}"
+              state=present
+  with_dict: "{{clusterhosts}}"
+
+#
+# Push HADOOP_HOME_DIR/etc/hadoop/slaves to all known slaves
+#
+
+- name: Push HADOOP_HOME_DIR/etc/hadoop/slaves to all known slaves
+  command: 'scp -o ConnectTimeout=5 {{hadoop_home_dir}}/etc/hadoop/slaves {{item.value.user}}@{{item.value.ip}}:{{hadoop_home_dir}}/etc/hadoop/'
+  when: item.value.role == "slave"
+  with_dict: "{{clusterhosts}}"
+  ignore_errors: yes
+
+
+
+#
+# update hbase regionservers file ----------------------------------------------
+#
+
+- name: update hbase regionservers file -> remove localhost reference
+  copy: dest='{{hbase_home_dir}}/conf/regionservers' 
+        content='' 
+        force=yes
+
+- name: update hbase regionservers file -> add slaves credentials
+  lineinfile: dest='{{hbase_home_dir}}/conf/regionservers'
+              line="{{item.value.name}}"
+              state=present
+  with_dict: "{{clusterhosts}}"
+
+#
+# Push hbase regionservers file to all known slaves
+#
+
+- name: Push hbase regionservers file to all known slaves
+  command: 'scp -o ConnectTimeout=5 {{hbase_home_dir}}/conf/regionservers {{item.value.user}}@{{item.value.ip}}:{{hbase_home_dir}}/conf/'
+  when: item.value.role == "slave"
+  with_dict: "{{clusterhosts}}"
+  ignore_errors: yes
+
+#
+# Update hbase hbase-site.xml file including all hosts in the zookeeper quorum
+#
+
+- name: Generate variable including all hosts in zk quorum
+  set_fact:
+    hbase_hosts='{{item.value.name}}'
+  with_dict: "{{clusterhosts}}"
+  when: item.value.role == "master"
+
+- set_fact:
+    hbase_hosts='{{hbase_hosts + "," +  item.value.name}}'
+  with_dict: "{{clusterhosts}}"
+  when: item.value.role == "slave"
+
+- name: Write HBase config file with the created var
+  template: src=hbase-site.xml.j2
+            dest='{{ hbase_home_dir }}/conf/hbase-site.xml'
+
+#
+# Push hbase hbase-site.xml file to all known slaves
+#
+
+- name: Push hbase hbase-site.xml file to all known slaves
+  command: 'scp -o ConnectTimeout=5 {{hbase_home_dir}}/conf/hbase-site.xml {{item.value.user}}@{{item.value.ip}}:{{hbase_home_dir}}/conf/'
+  when: item.value.role == "slave"
+  with_dict: "{{clusterhosts}}"
+  ignore_errors: yes
+
+# vim: ft=ansible

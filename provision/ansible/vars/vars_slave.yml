@@ -3,7 +3,7 @@
 #
 # Script routes configuration
 #
-boot_slave_script_orig: 'http://{{master_ip}}:8000/configuration/provision/slave/get_init_slave.sh'
+boot_slave_script_orig: 'http://{{master_ip}}:8000/provision/slave/get_init_slave.sh'
 boot_slave_script_dest: '/etc/init.d/get_init_slave.sh'
 boot_slave_script_link: '/etc/rc3.d/S99get_init_slave.sh'
 signup_playbook_file: '/tmp/playbook_signup.yml'

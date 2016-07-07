@@ -1,4 +1,4 @@
 ---
 
 hostlist_file: 'hostlist.yml'
-hostlist_path: '{{cluster_repository}}/configuration/provision/master/{{hostlist_file}}'
+hostlist_path: '{{cluster_repository}}/provision/master/{{hostlist_file}}'

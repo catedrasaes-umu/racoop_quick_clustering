@@ -45,9 +45,9 @@ sudo apt-get -y install ansible
 
 ##
 ##
-echo "\n===\n=== SLAVE BASICS: Downloading provision configuration files \n===\n" 
+echo "\n===\n=== SLAVE BASICS: Downloading provision configuration files \n===\n"
 
-wget -nH --cut-dirs=1 --reject="index.html*" -P /tmp -r --no-parent http://192.168.1.1:8000/configuration/provision/ 
+wget -nH --cut-dirs=1 --reject="index.html*" -P /tmp -r --no-parent http://192.168.1.1:8000/provision/ 
 
 printf "\n(1/2)\n===\n=== Please, configure manually the file /tmp/provision/ansible/vars/vars_common.yml before proceeding and press ENTER \n===\n"
 read -n 1 -s

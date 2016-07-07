@@ -88,7 +88,7 @@ Please, don't log as root user after doing this.
 
 ### Do `preprovision`
 
-1. Locate this script: `$/configuration/provision/master/prepovision_master.sh`
+1. Locate this script: `$/provision/master/prepovision_master.sh`
 
 2. Execute it as sudo:
 
@@ -144,7 +144,7 @@ Same as in the Master node case, we assume two identical hard disks (/dev/sd[ab]
 
 ### Do `preprovision`
 
-1. Copy or download the `$/configuration/provision/slave/prepovision_slave.sh` script.
+1. Copy or download the `$/provision/slave/prepovision_slave.sh` script.
 
 2. Execute it as sudo:
 

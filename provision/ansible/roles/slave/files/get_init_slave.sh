@@ -12,7 +12,7 @@
 ### END INIT INFO
 
 FILE="init_slave.sh"
-URI="http://192.168.1.1:8000/configuration/atboot/slave/$FILE"
+URI="http://192.168.1.1:8000/atboot/slave/$FILE"
 OUTPUT="/tmp/$FILE"
 LOGFILE="/tmp/get_init_slave.sh.log"
 
@@ -29,4 +29,3 @@ echo "\n===\n=== GET_INIT_SLAVE: Executing init_slave script\n===\n" >> $LOGFILE
 echo "\n===\n=== GET_INIT_SLAVE: Done \n===\n" >> $LOGFILE 2>&1
 
 exit 0
-

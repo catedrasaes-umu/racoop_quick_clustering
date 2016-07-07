@@ -5,10 +5,10 @@
 
 # Abstract
 
-- This guide is intended to easy install a physical (or virtual) cluster running Nagios, Hadoop and HBase, all automated by Ansible.
+- This guide is intended to easy install a physical (or virtual) cluster running Nagios, Hadoop and HBase, everything automated by using Ansible.
 - The scenario (depicted in the figure below) will be composed of:
    - 1 master node with 1 public interface and 1 private interface.
-   - 1 or more slave nodes, each one with a private Ethernet interface connected to the master.
+   - 1 or more slave nodes, each one with a private Ethernet interface connected to the master node.
    
    
 <img src="cluster_diag.png" 
@@ -18,6 +18,7 @@ alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
 - Configuration of different nodes is divided into two Ansible stages:
    - **provision**, that is executed just the first time a node is configured.
    - **atboot**, that is executed each time a node is rebooted.
+   
 
 
 
@@ -41,7 +42,7 @@ Now we create a single primary partition each of /dev/sda and /dev/sdb from sect
 
 Now we create the mdadm volume:
 
-    mdadm --create /dev/md0 --bitmap=internal --level=1 -n 2 /dev/sd[ab]1
+    sudo mdadm --create /dev/md0 --bitmap=internal --level=1 -n 2 /dev/sd[ab]1
 
 
 I noticed, that the ubiquity installer also does not quite manage to create partitions inside this /dev/md0, so I also did this by hand - again using fdisk. So on /dev/md0 create the following partitions:
@@ -135,11 +136,11 @@ Please, don't log as root user after doing this.
 
 ## Slave node configuration
 
-### Install Ubuntu (including graphical mode) over RAID 1
+### Install Ubuntu Server over RAID 1
 
-**(If you decide to install a different Ubuntu distribution, just go to next step.)**
+**(If you decide to install a different Ubuntu distribution, or avoid to mount RAID 1 devices, just go to next step.)**
 
-Same as in the Master case, we assume two identical hard disks (/dev/sd[ab]) which will be used completely for our new install. For the partitioning and RAID1 details please refer to the beginning of the previous section.
+Same as in the Master node case, we assume two identical hard disks (/dev/sd[ab]) which will be used completely for our new install. Follow the instructions of the Ubuntu installer to create RAID 1 partition.
 
 ### Do `preprovision`
 
@@ -162,11 +163,11 @@ Same as in the Master case, we assume two identical hard disks (/dev/sd[ab]) whi
 
 6. Reboot the slave machine.
 
-## Signup script.
+## Signup script
 
 The signup process must be executed in the cluster master when a new slave is added to the cluster. It is responsible of recreating files in master such as /etc/hosts and then push them to each slave. This process must be started once the new slave added is rebooted.
 
-### Add new slave to hostlist.yml file.
+### Add new slave to hostlist.yml file
 
 1. Open the file provision/master/hostlist.yml.
 
@@ -174,7 +175,7 @@ The signup process must be executed in the cluster master when a new slave is ad
 
 3. Create a new entry for the added slave and tag it with the role "slave".
 
-### Do Ansible `signup` process.
+### Do Ansible `signup` process
 
 1. In the master machine execute the signup playbook in the `provision/ansible` folder:
 
@@ -183,6 +184,6 @@ The signup process must be executed in the cluster master when a new slave is ad
 2. The last part of the signup process will restart Nagios, Hadoop and HBase.
 
 
-## Warnings and troubleshooting.
+## Warnings and troubleshooting
 
 1. There seems to be some problems in Ansible v2.1 related to the unarchive module as can be seen here [bug issue](https://github.com/ansible/ansible-modules-core/issues/3706). If unarchive fails by some reason, please check your unarchive.py module (located usually in /usr/lib/python2.7/dist-packages/ansible/modules/core/files/unarchive.py) and make sure to replace the line `rc, out, err = self.module.run_command(cmd)` with `rc, out, err = self.module.run_command(cmd, environ_update={'LC_ALL': 'C'})`.

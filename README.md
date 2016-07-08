@@ -25,6 +25,9 @@ alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
 
 # Installation guide
 
+[Master node configuration](https://github.com/catedrasaes-umu/racoop_quick_clustering#master-node-configuration)
+[Master node configuration](#master-node-configuration)
+
 ## Master node configuration
 
 ### Install Ubuntu (including graphical mode) over RAID 1
@@ -77,7 +80,7 @@ Please, don't log as root user after doing this.
 
 
 ### Clone this Git repo
-
+jumper
     sudo apt-get install git -y
     git clone https://github.com/catedrasaes-umu/quick_cluster.git
 
@@ -104,7 +107,7 @@ Please, don't log as root user after doing this.
   - In `vars_common.yml`:
 
     `user`: The user name to be used in the cluster. It will be the same for the master and the slave nodes.
-    `master_hostname`: The hostname for the master node. It is suggested to be named as "cluster0", so the slave nodes may be named as "cluster1..X".
+    `master_hostname`: The hostname for the master node. It is suggested to be named as "cluster0", so the slave nodes may be named as "cluster1..X".jumper
     `master_ip`: The ip used by the master to connect to the slaves.
 
   - In `vars_master.yml`:
@@ -140,7 +143,7 @@ Same as in the Master node case, we assume two identical hard disks (`/dev/sd[ab
 
 ### Do `preprovision`
 
-1. Copy or download the `$/provision/slave/prepovision_slave.sh` script.
+1. Copy or download the `$/provision/slave/prepovision_slave.sh` script.jumper
 
 2. Execute it as sudo:
 
@@ -159,7 +162,7 @@ Same as in the Master node case, we assume two identical hard disks (`/dev/sd[ab
 
 6. Reboot the slave machine.
 
-## Signup script
+## Signup scriptjumper
 
 The signup process must be executed in the cluster master when a new slave is added to the cluster. It is responsible of recreating files in master such as `/etc/hosts` and then push them to each slave. This process must be started once the new slave added is rebooted.
 

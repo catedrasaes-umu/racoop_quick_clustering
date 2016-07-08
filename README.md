@@ -27,7 +27,7 @@ alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
 
 - [Master node configuration](#master-node-configuration)
 - [Slave node configuration](#slave-node-configuration)
-- [Slave sign-up in Master](#slave-node-configuration)
+- [Slave sign-up in Master](#slave-sign-up-in-master)
 - [Warnings and Troubleshooting](#warnings-and-troubleshooting)
 
 ***

@@ -77,7 +77,7 @@ Make sure to go for manual partitioning and "use" the /dev/md0 device just creat
     update-grub
     exit
 
-Reboot after formating and login in the raid device. Now the installation may start.
+Remove the intallation CD/USB and Reboot. Now the system should start.
 
 ### 2. Enable root user
 

@@ -198,4 +198,4 @@ The signup process must be executed in the cluster master when a new slave is ad
 
 ## Warnings and troubleshooting
 
-- There seems to be some problems in Ansible v2.1 related to the unarchive module as can be seen here [bug issue](https://github.com/ansible/ansible-modules-core/issues/3706). If unarchive fails by some reason, please check your unarchive.py module (located usually in `/usr/lib/python2.7/dist-packages/ansible/modules/core/files/unarchive.py`) and make sure to replace the line `rc, out, err = self.module.run_command(cmd)` with `rc, out, err = self.module.run_command(cmd, environ_update={'LC_ALL': 'C'})`.
+- There seems to be some problems in Ansible v2.1 related to the unarchive module as can be seen here [bug issue](https://github.com/ansible/ansible-modules-core/issues/3706). If unarchive fails by some reason, please check your unarchive.py module (located usually in `/usr/lib/python2.7/dist-packages/ansible/modules/core/files/unarchive.py`) and make sure to replace the line 532 `rc, out, err = self.module.run_command(cmd)` with `rc, out, err = self.module.run_command(cmd, environ_update={'LC_ALL': 'C'})`.

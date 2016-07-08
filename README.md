@@ -38,16 +38,17 @@ alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
 
 **(If you decide to install a different Ubuntu distribution, just go to next step.)**
 
-We assume two identical hard disks (`/dev/sd[ab]`), which will be used to create only one mdadm-volume `/dev/md0` which will then be partitioned for `/`, `swap` and data storage, e.g. `/home`.
+
 
 After booting up the live-cd and (if necessary) configuring network access, open up a terminal and assume root access `sudo -s`:
 
     apt-get install mdadm
 
 
-[comment]: <> (Now we create a single primary partition each of `/dev/sda` and `/dev/sdb` from sector 2048 to the end of the disk, for example using `sudo fdisk`. I also like to already set the partition type to `fd` for linux raid autodetection. The keystroke-sequence in fdisk (if the disk is empty in the beginning, meaning no partitions) is `n <return> p <return> 1 <return> 2048 <return> <return> t <return> fd <return> w <return>`.)
+[//]: # "Now we create a single primary partition each of `/dev/sda` and `/dev/sdb` from sector 2048 to the end of the disk, for example using `sudo fdisk`. I also like to already set the partition type to `fd` for linux raid autodetection. The keystroke-sequence in fdisk (if the disk is empty in the beginning, meaning no partitions) is `n <return> p <return> 1 <return> 2048 <return> <return> t <return> fd <return> w <return>`."
 
-We assume two disks `/dev/sda` and `/dev/sdb`. We enable the RAID option in both disks, e.g., using GParted.
+We assume two identical hard disks (`/dev/sd[ab]`), which will be used to create only one mdadm-volume `/dev/md0` which will then be partitioned for `/`, `swap` and data storage, e.g. `/home`.
+For each of the disks, we format and enable the `RAID` option, e.g., by using GParted.
 
 Now we create the mdadm volume:
 

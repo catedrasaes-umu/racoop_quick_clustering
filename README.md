@@ -25,11 +25,9 @@ alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
 
 # Installation guide
 
-[Master node configuration](#master-node-configuration)
-
-[Slave node configuration](#slave-node-configuration)
-
-[Warnings and Troubleshooting](#warnings-and-troubleshooting)
+- [Master node configuration](#master-node-configuration)
+- [Slave node configuration](#slave-node-configuration)
+- [Warnings and Troubleshooting](#warnings-and-troubleshooting)
 
 ## Master node configuration
 

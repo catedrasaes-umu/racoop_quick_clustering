@@ -60,7 +60,7 @@ After that we can begin the Installation. Make sure to start the installer from 
     ubiquity -b
 
 
-Make sure to go for manual partitioning and "use" the /dev/md0 device just created for `/`. After the installation the system is not yet bootable, so do not restart the box right away. We need to chroot into the installed system and fixup some stuff:
+Make sure to go for manual partitioning and "use" the /dev/md0 device just created for `/`. **After the installation** the system is not yet bootable, so **do not restart** the box right away. We need to `chroot` into the installed system and fixup some stuff:
 
     sudo -s
     mount /dev/md0p1 /mnt

@@ -27,7 +27,10 @@ alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
 
 - [Master node configuration](#master-node-configuration)
 - [Slave node configuration](#slave-node-configuration)
+- [Slave sign-up in Master](#slave-node-configuration)
 - [Warnings and Troubleshooting](#warnings-and-troubleshooting)
+
+***
 
 ## Master node configuration
 
@@ -134,6 +137,8 @@ jumper
 2. When finished, reboot.
 
 
+***
+
 ## Slave node configuration
 
 ### Install Ubuntu Server over RAID 1
@@ -163,7 +168,9 @@ Same as in the Master node case, we assume two identical hard disks (`/dev/sd[ab
 
 6. Reboot the slave machine.
 
-## Signup scriptjumper
+***
+
+## Slave sign-up in Master
 
 The signup process must be executed in the cluster master when a new slave is added to the cluster. It is responsible of recreating files in master such as `/etc/hosts` and then push them to each slave. This process must be started once the new slave added is rebooted.
 
@@ -183,6 +190,8 @@ The signup process must be executed in the cluster master when a new slave is ad
 
 2. The last part of the signup process will restart Nagios, Hadoop and HBase.
 
+
+***
 
 ## Warnings and troubleshooting
 

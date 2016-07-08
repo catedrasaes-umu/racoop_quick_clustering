@@ -34,7 +34,7 @@ alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
 
 ## Master node configuration
 
-### Install Ubuntu (including graphical mode) over RAID 1
+#### Install Ubuntu (including graphical mode) over RAID 1
 
 **(If you decide to install a different Ubuntu distribution, just go to next step.)**
 
@@ -76,20 +76,20 @@ Make sure to go for manual partitioning and "use" the /dev/md0 device just creat
 
 Reboot after formating and login in the raid device. Now the installation may start.
 
-### Enable root user
+#### Enable root user
 
     sudo passwd root
 
 Please, don't log as root user after doing this.
 
 
-### Clone this Git repo
+#### Clone this Git repo
 jumper
     sudo apt-get install git -y
     git clone https://github.com/catedrasaes-umu/quick_cluster.git
 
 
-### Do `preprovision`
+#### Do `preprovision`
 
 1. Locate this script: `$/provision/master/prepovision_master.sh`
 
@@ -126,7 +126,7 @@ jumper
     `nagios_admin_email`: An admin email to be notified when an alert comes up in Nagios.
     
 
-### Do Ansible `provision`
+#### Do Ansible `provision`
 
 1. Launch the ansible playbook located at `/tmp/provision/ansible/`:
 

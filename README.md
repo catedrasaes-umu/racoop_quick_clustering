@@ -34,7 +34,7 @@ alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
 
 ## Master node configuration
 
-#### Install Ubuntu (including graphical mode) over RAID 1
+### 1. Install Ubuntu (including graphical mode) over RAID 1
 
 **(If you decide to install a different Ubuntu distribution, just go to next step.)**
 
@@ -76,37 +76,37 @@ Make sure to go for manual partitioning and "use" the /dev/md0 device just creat
 
 Reboot after formating and login in the raid device. Now the installation may start.
 
-#### Enable root user
+### 2. Enable root user
 
     sudo passwd root
 
 Please, don't log as root user after doing this.
 
 
-#### Clone this Git repo
+### 3. Clone this Git repo
 jumper
     sudo apt-get install git -y
     git clone https://github.com/catedrasaes-umu/quick_cluster.git
 
 
-#### Do `preprovision`
+### 4. Do `preprovision`
 
-1. Locate this script: `$/provision/master/prepovision_master.sh`
+4.1. Locate this script: `$/provision/master/prepovision_master.sh`
 
-2. Execute it as sudo:
+4.2. Execute it as sudo:
 
 
     sudo ./prepovision_master.sh <host_name> 
     (e.g., use cluster0 as host name)
 
 
-3. Generate public key:
+4.3. Generate public key:
 
     ssh-keygen -t rsa
     (Press `Return` 3 times)
 
 
-4. Configure vars files. Before the Ansible provision can start some variables must be defined. These variables may be found on the `provision/ansible/vars` folder and they are:
+4.4. Configure vars files. Before the Ansible provision can start some variables must be defined. These variables may be found on the `provision/ansible/vars` folder and they are:
 
   - In `vars_common.yml`:
 
@@ -126,7 +126,7 @@ jumper
     `nagios_admin_email`: An admin email to be notified when an alert comes up in Nagios.
     
 
-#### Do Ansible `provision`
+### 5. Do Ansible `provision`
 
 1. Launch the ansible playbook located at `/tmp/provision/ansible/`:
 

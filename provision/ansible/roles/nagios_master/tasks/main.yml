@@ -41,16 +41,12 @@
 - name: Compile Configure Nagios and make all
   command: "./configure --with-nagios-user={{ user }} --with-nagios-group={{ user }} --with-command-group={{user}}"
   args:
-#    creates: "{{ nagios_folder }}/nagios-{{ nagios_version }}/configure"
     chdir: "{{ nagios_folder }}/nagios-{{ nagios_version }}"
 
 - name: Compile Nagios
-#  expect:
   command: "make all"
   args:
     chdir: "{{ nagios_folder }}/nagios-{{ nagios_version }}"
-#    responses:
-#      replace LICENSE?: "A"
 
 - name: Install Nagios
   shell: "cd {{ nagios_folder }}/nagios-{{ nagios_version }}/ && make install && make install-commandmode && make install-init && make install-config"
@@ -90,7 +86,6 @@
 - name: Compile Configurate Nagios plugins
   command: "./configure --with-nagios-user={{ user }} --with-nagios-group={{ user }} --with-openssl"
   args:
-#    creates: "{{ nagios_plugins_folder }}/nagios-plugins-{{ nagios_plugin_version }}/configure"
     chdir: "{{ nagios_plugins_folder }}/nagios-plugins-{{ nagios_plugin_version }}/"
 
 - name: Compile and install Nagios plugins
@@ -140,7 +135,7 @@
   become: yes
 
 - name: Replace admin contact email for the Catedra email
-  replace: dest=/usr/local/nagios/etc/objects/contacts.cfg regexp="nagios@localhost" replace={{ nagios_admin_email }}
+  replace: dest=/usr/local/nagios/etc/objects/contacts.cfg regexp="{{ user }}@localhost" replace={{ nagios_admin_email }}
   become: yes
 
 - name: Copy Commands config file

@@ -20,6 +20,13 @@
   template: src=10-my-network.rules dest=/etc/udev/rules.d/ mode=644 owner=root group=root
   become: yes
 
+- name: Remove the problematic 127.0.1.1 line
+  lineinfile:
+    dest: /etc/hosts
+    state: absent
+    regexp: "127.0.1.1"
+  sudo: yes
+
 - name: Create a /etc/hosts entry
   blockinfile:
     dest: /etc/hosts

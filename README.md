@@ -189,7 +189,7 @@ The signup process must be executed in the cluster master when a new slave is ad
 
 2.1. In the master machine execute the signup playbook in the `provision/ansible` folder:
 
-    ansible-playbook playbook-signup.yml
+    ansible-playbook playbook-signup.yml -K
 
 2.2. The last part of the signup process will restart Nagios, Hadoop and HBase.
 

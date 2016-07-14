@@ -1,0 +1,21 @@
+---
+
+- name: Shutdown services
+  hosts: localhost
+  pre_tasks:
+    - include_vars: vars/vars_common.yml
+
+  tasks:
+    - name: Stop HBase
+      command: ./bin/stop-hbase.sh chdir={{ hbase_home_dir }}
+
+    - name: Stop Thrift server
+      command: ./bin/hbase-daemon.sh stop thrift chdir={{ hbase_home_dir }}
+
+    - name: Stop Hadoop DFS daemons
+      command: sbin/stop-dfs.sh chdir={{ hadoop_home_dir }}
+
+    - name: Stop Hadoop Yarn
+      command: sbin/stop-yarn.sh chdir={{ hadoop_home_dir }}
+
+# vim: ft=ansible

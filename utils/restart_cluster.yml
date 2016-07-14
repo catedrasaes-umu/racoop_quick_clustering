@@ -1,0 +1,7 @@
+---
+
+- include: shutdown_cluster.yml
+
+- include: start_cluster.yml
+
+# vim: ft=ansible

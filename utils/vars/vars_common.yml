@@ -1,0 +1,16 @@
+---
+
+hadoop_major_version: 2
+hadoop_release: '2.6.3'
+hadoop_archive: 'hadoop-{{ hadoop_release }}.tar.gz'
+hadoop_base_dir: '{{ ansible_env.HOME }}'
+hadoop_home_dir: '{{hadoop_base_dir}}/hadoop-{{hadoop_release}}'
+hadoop_tmp_dir: '/data/hadoop'
+
+#
+# hbase settings
+#
+hbase_release: '1.1.5'
+hbase_archive: 'hbase-{{ hbase_release }}-bin.tar.gz'
+hbase_base_dir: '{{ ansible_env.HOME }}'
+hbase_home_dir: '{{hbase_base_dir}}/hbase-{{hbase_release}}'

@@ -18,7 +18,8 @@ alt="IMAGE ALT TEXT HERE" width="350"  border="10" />
 - Configuration of different nodes is divided into two Ansible stages:
    - **provision**, that is executed just the first time a node is configured.
    - **atboot**, that is executed each time a node is rebooted.
-   
+
+- Additionally several administration ansible playbooks are provided, found in the **utils** folder to shutdown, start, restart and test the cluster.
 
 
 

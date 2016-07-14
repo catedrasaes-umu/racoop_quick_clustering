@@ -1,0 +1,33 @@
+---
+
+- name: Start services
+  hosts: localhost
+  pre_tasks:
+    - include_vars: vars/vars_common.yml
+
+  tasks:
+    - name: Test Hadoop service
+      command: ./bin/hadoop version chdir={{ hadoop_home_dir }}
+      register: hadoopTest1
+
+    - name: Test Hadoop fs
+      command: ./bin/hadoop fs -ls / chdir={{ hadoop_home_dir }}
+      register: hadoopTest2
+
+    - name: Test Hadoop Yarn
+      command: ./bin/yarn version chdir={{ hadoop_home_dir }}
+      register: yarnTest
+
+    - name: Test HBase
+      command: ./bin/hbase version chdir={{ hbase_home_dir }}
+      register: hbaseTest
+
+    - debug: var=hadoopTest1.stdout_lines
+
+    - debug: var=hadoopTest2.stdout_lines
+
+    - debug: var=yarnTest.stdout_lines
+
+    - debug: var=hbaseTest.stdout_lines
+
+# vim: ft=ansible

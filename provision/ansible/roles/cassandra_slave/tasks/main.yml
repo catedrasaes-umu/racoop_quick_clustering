@@ -41,4 +41,5 @@
     block: |
       line=HADOOP_TASKTRACKER_OPTS="-classpath {{ cass_home_dir }}/*:{{ cass_home_dir }}/lib/* -Dhadoop.security.logger=ERROR,console -Dmapred.audit.logger=ERROR,console $HADOOP_TASKTRACKER_OPTS"
       export HADOOP_CLASSPATH="{{ cass_home_dir }}/*:{{ cass_home_dir }}/lib/*"
+      marks: "# Cassandra libs"
   become: yes

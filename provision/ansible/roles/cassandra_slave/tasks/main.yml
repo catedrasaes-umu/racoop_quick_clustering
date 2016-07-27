@@ -17,7 +17,7 @@
   template: src=cassandra.yaml dest={{ cass_home_dir }}/conf/
 
 - name: Create Cassandra data folders
-  file: path={{ cass_data_dir }} state=directory owner={{ user }} group={{ user }} mode=0775
+  file: path={{ cass_main_data_dir }} state=directory owner={{ user }} group={{ user }} mode=0775
   become: yes
 
 - name: Create Cassandra log folders
@@ -37,7 +37,7 @@
 
 - name: Modify hadoop-env file to include cassandra path
   blockinfile:
-    dest: dest={{ hadoop_home_dir }}/etc/hadoop/hadoop-env.sh
+    dest: '{{ hadoop_home_dir }}/etc/hadoop/hadoop-env.sh'
     block: |
       line=HADOOP_TASKTRACKER_OPTS="-classpath {{ cass_home_dir }}/*:{{ cass_home_dir }}/lib/* -Dhadoop.security.logger=ERROR,console -Dmapred.audit.logger=ERROR,console $HADOOP_TASKTRACKER_OPTS"
       export HADOOP_CLASSPATH="{{ cass_home_dir }}/*:{{ cass_home_dir }}/lib/*"

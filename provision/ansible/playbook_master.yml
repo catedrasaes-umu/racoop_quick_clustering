@@ -13,5 +13,6 @@
     - nagios_master
     - hadoop_master
     - hbase_master
+#    - cassandra
 
 # vim: ft=ansible

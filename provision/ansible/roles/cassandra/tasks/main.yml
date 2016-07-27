@@ -1,0 +1,44 @@
+---
+
+- name: Download and extract Cassandra
+  unarchive: src={{ cass_url }}
+             creates= {{ cass_base_dir }}
+             dest={{ cass_base_dir }}
+             owner={{ user }}
+             group={{ user }}
+             copy=no
+  become: yes
+
+- name: Symlink Cassandra home directory to just cassandra
+  file: path={{ cass_base_dir }}/cassandra src='{{ cass_home_dir }}' state=link
+  become: yes
+
+- name: Copy Cassandra config file
+  template: src=cassandra.yaml dest={{ cass_home_dir }}/conf/
+
+- name: Create Cassandra data folders
+  file: path={{ cass_data_dir }} state=directory owner={{ user }} group={{ user }} mode=0775
+  become: yes
+
+- name: Create Cassandra log folders
+  file: path={{ cass_log_dir }} state=directory owner={{ user }} group={{ user }} mode=0775
+  become: yes
+
+- name: Add CASSANDRA_PREFIX to environment variables
+  lineinfile: dest=/etc/environment
+              regexp=^CASSANDRA_PREFIX=
+              line=CASSANDRA_PREFIX={{ cass_home_dir }}
+  become: yes
+
+- name: Write cassandra-env file
+  template: src=cassandra-env.sh
+            dest='/etc/profile.d/'
+  become: yes
+
+- name: Modify hadoop-env file to include cassandra path
+  blockinfile:
+    dest: dest={{ hadoop_home_dir }}/etc/hadoop/hadoop-env.sh
+    block: |
+      line=HADOOP_TASKTRACKER_OPTS="-classpath {{ cass_home_dir }}/*:{{ cass_home_dir }}/lib/* -Dhadoop.security.logger=ERROR,console -Dmapred.audit.logger=ERROR,console $HADOOP_TASKTRACKER_OPTS"
+      export HADOOP_CLASSPATH="{{ cass_home_dir }}/*:{{ cass_home_dir }}/lib/*"
+  become: yes

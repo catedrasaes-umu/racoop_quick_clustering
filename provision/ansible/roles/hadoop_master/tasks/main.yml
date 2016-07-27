@@ -46,12 +46,12 @@
             dest='{{ hadoop_home_dir }}/etc/hadoop/mapred-site.xml' owner={{ user }} group={{ user }}
 
 - name: Write Hadoop masters file
-  copy: content='{{ master_hostname }}\n' dest='{{ hadoop_home_dir}}/etc/hadoop/masters' owner={{ user }} group={{ user }}
+  copy: content='{{ master_hostname }}\n' dest='{{ hadoop_home_dir }}/etc/hadoop/masters' owner={{ user }} group={{ user }}
 
 - name: Write Hadoop slaves file (replace localhost entry)
-  replace: dest='{{ hadoop_home_dir}}/etc/hadoop/slaves' 
+  replace: dest='{{ hadoop_home_dir }}/etc/hadoop/slaves' 
            regexp='localhost'
            replace='{{ master_hostname }}'
 
 - name: Format the Hadoop filesystem
-  shell: '{{ hadoop_home_dir}}/bin/hdfs namenode -format'
+  shell: '{{ hadoop_home_dir }}/bin/hdfs namenode -format'

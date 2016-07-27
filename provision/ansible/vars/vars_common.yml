@@ -28,10 +28,26 @@ hadoop_url: 'https://archive.apache.org/dist/hadoop/core/hadoop-{{ hadoop_releas
 hbase_release: '1.1.5'
 hbase_archive: 'hbase-{{ hbase_release }}-bin.tar.gz'
 hbase_base_dir: '{{ ansible_env.HOME }}'
-hbase_home_dir: '{{hbase_base_dir}}/hbase-{{hbase_release}}'
+hbase_home_dir: '{{ hbase_base_dir }}/hbase-{{hbase_release}}'
 hbase_data_dir: '/data/hbase'
 hbase_url: 'https://archive.apache.org/dist/hbase/{{ hbase_release }}/{{ hbase_archive }}'
 zookeeper_data_dir: '/data/zk'
+
+#
+# cassandra settings
+#
+cass_release: '3.7'
+cass_archive: 'apache-cassandra-{{ cass_release }}-bin.tar.gz'
+cass_base_dir: '{{ ansible_env.HOME }}'
+cass_home_dir: '{{ cass_base_dir }}/apache-cassandra-{{ cass_release }}'
+cass_data_dir: '/var/lib/cassandra'
+cass_hints_dir: '/var/lib/cassandra/hints'
+cass_data_dir: '/var/lib/cassandra/data'
+cass_commit_dir: '/var/lib/cassandra/commitlog'
+cass_cached_dir: '/var/lib/cassandra/saved_caches'
+cass_log_dir: '/var/log/cassandra'
+cass_url: 'https://archive.apache.org/dist/cassandra/{{ cass_release }}/{{ cass_archive}}'
+cass_cluster_name: ''
 
 #
 # Route to ansible groups definitions

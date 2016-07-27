@@ -9,7 +9,6 @@ ssh_key: '{{ansible_env.HOME}}/.ssh/id_rsa'
 master_hostname: ''
 master_ip: ''
 
-
 #
 # hadoop settings
 #
@@ -40,12 +39,12 @@ cass_release: '3.7'
 cass_archive: 'apache-cassandra-{{ cass_release }}-bin.tar.gz'
 cass_base_dir: '{{ ansible_env.HOME }}'
 cass_home_dir: '{{ cass_base_dir }}/apache-cassandra-{{ cass_release }}'
-cass_main_data_dir: '/var/lib/cassandra'
-cass_hints_dir: '/var/lib/cassandra/hints'
-cass_data_dir: '/var/lib/cassandra/data'
-cass_commit_dir: '/var/lib/cassandra/commitlog'
-cass_cached_dir: '/var/lib/cassandra/saved_caches'
-cass_log_dir: '/var/log/cassandra'
+cass_main_data_dir: '{{ cass_home_dir}}/data/'
+cass_hints_dir: '{{ cass_main_data_dir }}/hints'
+cass_data_dir: '{{ cass_main_data_dir }}/data'
+cass_commit_dir: '{{ cass_main_data_dir }}/commitlog'
+cass_cached_dir: '{{ cass_main_data_dir }}/saved_caches'
+cass_log_dir: '{{ cass_home_dir }}/logs'
 cass_url: 'https://archive.apache.org/dist/cassandra/{{ cass_release }}/{{ cass_archive}}'
 cass_cluster_name: ''
 

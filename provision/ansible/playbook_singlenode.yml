@@ -11,5 +11,6 @@
     - singlenode
     - hadoop_master
     - hbase_master
+    - cassandra_master
 
 # vim: ft=ansible

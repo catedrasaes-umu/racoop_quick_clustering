@@ -17,7 +17,7 @@
     - nagios_slave
     - hadoop_slave
     - hbase_slave
-#    - cassandra
+#    - cassandra_slave
 
   post_tasks:
     - meta: refresh_inventory

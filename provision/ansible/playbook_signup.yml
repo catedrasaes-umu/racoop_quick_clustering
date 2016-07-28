@@ -9,6 +9,5 @@
 
   roles:
     - signup_master
-    - restart_services
 
 # vim: ft=ansible

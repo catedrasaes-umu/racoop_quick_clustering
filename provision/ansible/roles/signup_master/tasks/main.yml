@@ -3,7 +3,7 @@
 # load hosts information
 #
 
-- include_vars: '{{hostlist_path}}'
+- include_vars: '{{ hostlist_path }}'
 
 #
 # update local /etc/hosts file -------------------------------------------------
@@ -173,6 +173,35 @@
 
 - name: Push hbase hbase-site.xml file to all known slaves
   command: 'scp -o ConnectTimeout=5 {{hbase_home_dir}}/conf/hbase-site.xml {{item.value.user}}@{{item.value.ip}}:{{hbase_home_dir}}/conf/'
+  when: item.value.role == "slave"
+  with_dict: "{{clusterhosts}}"
+  ignore_errors: yes
+
+#
+# Update cassandra cassandra.yaml file to include all seeds
+#
+
+- name: Generate variable including all hosts in cass seeds
+  set_fact:
+    cass_hosts='{{item.value.name}}'
+  with_dict: "{{clusterhosts}}"
+  when: item.value.role == "master"
+
+- set_fact:
+    cass_hosts='{{cass_hosts + "," +  item.value.name}}'
+  with_dict: "{{clusterhosts}}"
+  when: item.value.role == "slave"
+
+- name: Write Cassandra yaml file with the created var
+  template: src=cassandra.yaml
+            dest='{{ cass_home_dir }}/conf/cassandra.yaml'
+
+#
+# Replace cassandra line in all slaves
+#
+
+- name: Push cassandra seed line to all known slaves
+  shell: "ssh {{item.value.user}}@{{item.value.ip}} \"sed -i.bak 's/#cass_hosts#/{{ cass_hosts }}/' {{cass_home_dir}}/conf/cassandra.yaml\""
   when: item.value.role == "slave"
   with_dict: "{{clusterhosts}}"
   ignore_errors: yes
